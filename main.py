@@ -17,42 +17,35 @@ reviews = dataframe.get_dataframe()
 
 key_rate_dict = {}
 
-for _, review in reviews.iterrows():
-    prompt = f"""
-            Write what comments are made in the restaurant, rate 0-5
+review = reviews["Review"].values[8]
 
-            Desired Format:
-            key:rate
+prompt = f"""
+        Rate just the comments made about foods between 0-5
 
-            Rules:
-            key must not contain adjectives
+        Desired Format:
+        key:rate
 
-            Example:
-            Review:
-            The ambience is wonderful and there is music playing.
-            Output:
-            Ambience:5, Music:4
+        Example:
+        Review:
+        T-Bone was excellent but the dessert was weak.
 
-            Review:
-            {review}
+        Output:
+        T-Bone:5, dessert:2
 
-            Output:
-            """
+        Review:
+        {review}
+
+        Output:
+        """
     
-    completion = Completion("text-davinci-003", review, prompt, max_tokens=1000)
-    response = completion.create_completion()
+completion = Completion("text-davinci-003", review, prompt, max_tokens=1000)
+response = completion.create_completion()
+text = response["choices"][0]["text"]
+pairs = text.split(",")
+for pair in pairs:
+    key, value = pair.split(":")
+    key = key.strip()
+    value = int(value)
+    key_rate_dict[key] = value
 
-    text = response["choices"][0]["text"]
-    pairs = text.split(",")
-    for pair in pairs:
-        key, value = pair.split(":")
-        key = key.strip()
-        value = int(value)
-        if key in key_rate_dict:
-            key_rate_dict[key] = (key_rate_dict[key] + value) / 2
-        else:
-            key_rate_dict[key] = value
-
-key_rate_df = pd.DataFrame(key_rate_dict, index=["Nusret"])
-print(key_rate_df)
-key_rate_df.to_csv("key_rate_df.csv", index=True)
+print(key_rate_dict)

@@ -7,7 +7,7 @@ page_number = 1
 
 reviews_list = []
 
-while True:
+while page_number<2:
     current_url = base_url + str(page_number)
     source = url.urlopen(current_url)
     page_soup = bs.BeautifulSoup(source, 'html.parser')
